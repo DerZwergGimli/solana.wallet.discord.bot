@@ -18,6 +18,7 @@ use wallet::wallet::Wallet;
 
 use birdseyeapi::birdseyeapi::fetch_multi_price;
 use configuration::configuration::Configuration;
+use configuration::helper;
 use tx_scanner::tx_scanner::TxScanner;
 
 use crate::commands::address::*;
@@ -116,6 +117,7 @@ impl EventHandler for Handler {
 
 async fn check_tx_queue(ctx: Arc<Context>) {
     let data_read = ctx.data.read().await;
+
     let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
     let config = arc_config.lock().await.clone();
     let mut scanner = TxScanner::new(config.clone());
@@ -155,10 +157,7 @@ async fn check_tx_queue(ctx: Arc<Context>) {
 
 
 async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
-    let data_read = ctx.data.read().await;
-    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
-    let config = arc_config.lock().await.clone();
-
+    let config = helper::read_config("config.json".to_string());
 
     let wallet = Wallet::new(config);
     let tokens_wallet = wallet.get_token_amounts().await;
