@@ -1,11 +1,7 @@
-use std::fmt::format;
-
-use serenity::Error::Json;
 use serenity::framework::standard::CommandResult;
 use serenity::framework::standard::macros::command;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::utils::Color;
 
 use crate::bot::ConfigurationStore;
 

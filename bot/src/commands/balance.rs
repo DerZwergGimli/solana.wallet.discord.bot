@@ -1,6 +1,3 @@
-use std::fmt::format;
-use std::str;
-
 use serenity::framework::standard::CommandResult;
 use serenity::framework::standard::macros::command;
 use serenity::model::prelude::*;
@@ -8,11 +5,8 @@ use serenity::prelude::*;
 use wallet::wallet::Wallet;
 
 use birdseyeapi::birdseyeapi::fetch_multi_price;
-use tx_scanner::tx_scanner::TxScanner;
 
 use crate::bot::ConfigurationStore;
-
-//use crate::bot::{WalletStore};
 
 #[command]
 async fn balance(ctx: &Context, msg: &Message) -> CommandResult {

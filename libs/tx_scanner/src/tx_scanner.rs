@@ -2,11 +2,10 @@ use std::str::FromStr;
 
 use anyhow::{anyhow, Error};
 use log::{info, warn};
-use serde::Serialize;
 use solana_client::rpc_client::RpcClient;
 use solana_program::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
-use solana_transaction_status::{EncodedTransaction, EncodedTransactionWithStatusMeta, UiInnerInstructions, UiInstruction, UiMessage, UiRawMessage, UiTransactionEncoding, UiTransactionStatusMeta};
+use solana_transaction_status::{EncodedTransaction, UiMessage, UiTransactionEncoding};
 use spl_token::instruction::TokenInstruction;
 
 use configuration::configuration::Configuration;
