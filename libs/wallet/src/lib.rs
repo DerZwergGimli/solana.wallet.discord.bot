@@ -1,2 +1,2 @@
-pub mod solana;
-pub mod accounts_details;
+pub mod account_details;
+pub mod wallet;

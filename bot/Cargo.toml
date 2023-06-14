@@ -15,5 +15,5 @@ prettytable-rs = "0.10.0"
 
 configuration = { path = "../libs/configuration" }
 wallet = { path = "../libs/wallet" }
-tx_parser = { path = "../libs/tx_scanner" }
+tx_scanner = { path = "../libs/tx_scanner" }
 birdseyeapi = { path = "../libs/birdseyeapi" }

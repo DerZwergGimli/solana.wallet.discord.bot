@@ -6,7 +6,7 @@ use solana_program::pubkey::Pubkey;
 
 use configuration::configuration::Configuration;
 
-use crate::accounts_details::AccountDetails;
+use crate::account_details::AccountDetails;
 
 pub struct Wallet {
     rpc_url: String,

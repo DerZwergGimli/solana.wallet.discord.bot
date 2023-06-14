@@ -14,10 +14,11 @@ use serenity::model::gateway::{Activity, Ready};
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::prelude::*;
 use serenity::utils::Color;
+use wallet::wallet::Wallet;
 
+use birdseyeapi::birdseyeapi::fetch_multi_price;
 use configuration::configuration::Configuration;
-use tx_parser::tx_scanner::TxScanner;
-use wallet::solana::Wallet;
+use tx_scanner::tx_scanner::TxScanner;
 
 use crate::commands::address::*;
 use crate::commands::config::*;
@@ -64,19 +65,15 @@ struct General;
 #[async_trait]
 impl EventHandler for Handler {
     async fn cache_ready(&self, ctx: Context, _guilds: Vec<GuildId>) {
-        println!("Cache built successfully!");
-
+        info!("Cache built successfully!");
         let ctx = Arc::new(ctx);
-        let all_treads_running = Arc::new(AtomicBool::new(true));
-
 
         if !self.is_loop_running.load(Ordering::Relaxed) {
 
-            //Update-Wallet Task
+            //Update-Wallet Balance (aka: bot-name)
             let ctx1 = Arc::clone(&ctx);
             tokio::spawn(async move {
                 loop {
-                    // update_wallet(Arc::clone(&ctx1)).await;
                     let data_read = ctx1.data.read().await;
                     let arc_config = data_read.get::<ConfigurationStore>().expect("Expected ConfigStore in TypeMap");
                     let config = arc_config.lock().await.clone();
@@ -90,19 +87,18 @@ impl EventHandler for Handler {
             let ctx2 = Arc::clone(&ctx);
             tokio::spawn(async move {
                 loop {
-                    //check_tx_queue(Arc::clone(&ctx2)).await;
-                    tokio::time::sleep(Duration::from_secs(5)).await;
+                    let data_read = ctx2.data.read().await;
+                    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected ConfigStore in TypeMap");
+                    let config = arc_config.lock().await.clone();
+
+
+
+                    check_tx_queue(Arc::clone(&ctx2)).await;
+                    tokio::time::sleep(Duration::from_secs(config.update_tx_sleep)).await;
                 }
             });
 
-            //Substream Queue Task
-            let ctx3 = Arc::clone(&ctx);
-            tokio::spawn(async move {
-                loop {
-                    //run_substream_service(Arc::clone(&ctx3)).await;
-                    tokio::time::sleep(Duration::from_secs(5)).await;
-                }
-            });
+
 
 
             self.is_loop_running.swap(true, Ordering::Relaxed);
@@ -124,33 +120,46 @@ impl EventHandler for Handler {
 //     println!("wallet-updated!");
 // }
 
+async fn check_tx_queue(ctx: Arc<Context>) {
+    let data_read = ctx.data.read().await;
+    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
+    let config = arc_config.lock().await.clone();
 
-async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
-    // let data_read = ctx.data.read().await;
-    // let arc_wallet = data_read.get::<WalletStore>().expect("Expected WalletStore in TypeMap");
-    // let tokens = arc_wallet.lock().await.get_token_accounts();
-    //
-    // let mut sum = 0.0;
-    // tokens.clone().into_iter().for_each(|token| {
-    //     sum += token.ui_amount * token.coingecko_price;
-    // });
-    //
-    //
-    // let name_text: String = format!("💰 {:.2} 💰 ", sum);
-    // for _guild in _guilds.iter() {
-    //     match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
-    //         Ok(_) => { info!("Changed Bot nickname!") }
-    //         Err(_) => { error!("Unable to change bot nickname!") }
-    //     };
-    // }
-    // let current_time = Utc::now();
-    // let formatted_time = current_time.to_rfc2822();
-    //
-    // ctx.set_activity(Activity::playing(&formatted_time)).await;
+
+
 }
 
 
-pub async fn init_bot(config: Configuration, wallet: Wallet, scanner: TxScanner) {
+async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
+    let data_read = ctx.data.read().await;
+    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
+    let config = arc_config.lock().await.clone();
+
+
+    let wallet = Wallet::new(config);
+    let tokens_wallet = wallet.get_token_amounts().await;
+    let tokens_prices = fetch_multi_price(tokens_wallet.clone().into_iter().map(|token| token.mint).collect()).await;
+
+    let mut balance_value = 0.0;
+    tokens_wallet.into_iter().for_each(|token|
+        balance_value += (token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value)
+    );
+
+    let name_text: String = format!("💰 {:.2} 💰 ", f64::trunc(balance_value * 100.0) / 100.0);
+    for _guild in _guilds.iter() {
+        match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
+            Ok(_) => { info!("Changed Bot nickname!") }
+            Err(_) => { error!("Unable to change bot nickname!") }
+        };
+    }
+    let current_time = Utc::now();
+    let formatted_time = current_time.to_rfc2822();
+
+    ctx.set_activity(Activity::playing(&formatted_time)).await;
+}
+
+
+pub async fn init_bot(config: Configuration) {
     let http = Http::new(&config.clone().discord_token);
     let (owners, _bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
@@ -180,8 +189,6 @@ pub async fn init_bot(config: Configuration, wallet: Wallet, scanner: TxScanner)
     {
         let mut data = client.data.write().await;
         data.insert::<ConfigurationStore>(Arc::new(Mutex::new(config)));
-        data.insert::<WalletStore>(Arc::new(Mutex::new(wallet)));
-        data.insert::<ScannerStore>(Arc::new(Mutex::new(scanner)));
     }
 
 

@@ -1,11 +1,11 @@
 use std::env;
 
 use dotenv::dotenv;
+use wallet::wallet::Wallet;
 
 use birdseyeapi::birdseyeapi;
 use configuration::helper;
-use tx_parser::tx_scanner::TxScanner;
-use wallet::solana::Wallet;
+use tx_scanner::tx_scanner::TxScanner;
 
 use crate::bot::init_bot;
 
@@ -19,10 +19,11 @@ async fn main() {
     env_logger::init();
 
     //Init Dependencies
+
+
     let config = helper::read_config("config.json".to_string());
     let wallet = Wallet::new(config.clone());
     let mut scanner = TxScanner::new(config.clone());
-
 
 
 //    let account_details = wallet.get_token_amounts().await;
@@ -32,8 +33,8 @@ async fn main() {
 //    scanner.update_config(txs);
 
 
- //   let prices = birdseyeapi::fetch_multi_price(config.clone().accounts.into_iter().map(|account| account.mint).collect()).await;
-  //  println!("{:?}", prices);
+    //   let prices = birdseyeapi::fetch_multi_price(config.clone().accounts.into_iter().map(|account| account.mint).collect()).await;
+    //  println!("{:?}", prices);
     // let config = config::config::get_config(env::var("CONFIG_PATH").expect("Please set env: CONFIG_PATH"));
     // let wallet = solana::wallet::Wallet::new(config.clone());
     // let mut substream = substreams::substream_service::SubstreamService::new(config.clone());
@@ -41,7 +42,7 @@ async fn main() {
     //
     // init_bot(config.clone(), wallet, substream).await;
 
-    init_bot(config.clone(), wallet, scanner).await;
+    init_bot(config.clone()).await;
     println!("--- EXIT ---");
 }
 
