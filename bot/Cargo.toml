@@ -1,0 +1,19 @@
+[package]
+name = "SolanaDiscordWalletTracker"
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+log = "0.4.17"
+dotenv = "0.15.0"
+env_logger = "0.10.0"
+anyhow = "1.0.69"
+tokio = { version = "1", features = ["full"] }
+serenity = { version = "0.11.5", features = ["client", "gateway", "rustls_backend", "framework", "standard_framework", "model", "cache"] }
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+prettytable-rs = "0.10.0"
+
+configuration = { path = "../libs/configuration" }
+wallet = { path = "../libs/wallet" }
+tx_parser = { path = "../libs/tx_scanner" }
+birdseyeapi = { path = "../libs/birdseyeapi" }

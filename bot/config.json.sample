@@ -1,0 +1,13 @@
+{
+  "discord_token": "",
+  "discord_prefix": "$",
+  "update_config": false,
+  "accounts": [
+    {
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "account": "AsnhnzZpAQ5JN8jM9j194y4TrpxeeW8M93KdG8Rj1ARv",
+      "last_signature": "47GjFeCKyXt17JyVw94TUtD8roCFjzwBkvbgsU7oVp17zogn28BHBVX5aCpAQFGdStppxLLfd6WUYqPteXJBBoWs",
+      "discord_channel_id": ""
+    }
+  ]
+}
