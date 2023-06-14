@@ -4,8 +4,6 @@ services:
     image: derzwerggimli/solana-discord-tracker:latest
     environment:
       RUST_LOG: "warn"
-      CONFIG_PATH: "/app_config.json"
-      WRITE_CONFIG: true
 
     restart: unless-stopped
     volumes:
