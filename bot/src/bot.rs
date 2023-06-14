@@ -77,12 +77,12 @@ impl EventHandler for Handler {
             tokio::spawn(async move {
                 loop {
                     // update_wallet(Arc::clone(&ctx1)).await;
-                    // let data_read = ctx1.data.read().await;
-                    // let arc_config = data_read.get::<ConfigStore>().expect("Expected ConfigStore in TypeMap");
-                    // let config = arc_config.lock().await.clone();
-                    //
-                    // update_nickname(Arc::clone(&ctx1), _guilds.clone()).await;
-                    // tokio::time::sleep(Duration::from_millis(config.update_timeout)).await;
+                    let data_read = ctx1.data.read().await;
+                    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected ConfigStore in TypeMap");
+                    let config = arc_config.lock().await.clone();
+
+                    update_nickname(Arc::clone(&ctx1), _guilds.clone()).await;
+                    tokio::time::sleep(Duration::from_millis(config.update_tx_sleep)).await;
                 }
             });
 

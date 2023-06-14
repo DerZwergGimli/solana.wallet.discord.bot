@@ -6,8 +6,8 @@ pub struct Configuration {
     pub update_config: bool,
     pub discord_token: String,
     pub discord_prefix: String,
-    pub update_name_sleep: i64,
-    pub update_tx_sleep: i64,
+    pub update_name_sleep: u64,
+    pub update_tx_sleep: u64,
     pub accounts: Vec<ConfigAccount>,
 }
 
