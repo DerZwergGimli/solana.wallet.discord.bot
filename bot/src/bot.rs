@@ -24,7 +24,6 @@ use crate::commands::address::*;
 use crate::commands::config::*;
 use crate::commands::help::*;
 use crate::commands::ping::*;
-use crate::commands::store::*;
 use crate::commands::wallet::*;
 
 pub struct ConfigurationStore;
@@ -52,7 +51,7 @@ pub struct Handler {
 }
 
 #[group]
-#[commands(ping, help, wallet, config, store, address)]
+#[commands(ping, help, wallet, config, address)]
 struct General;
 
 #[async_trait]

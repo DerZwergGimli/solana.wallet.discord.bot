@@ -12,6 +12,7 @@ tokio = { version = "1", features = ["full"] }
 serenity = { version = "0.11.5", features = ["client", "gateway", "rustls_backend", "framework", "standard_framework", "model", "cache"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 prettytable-rs = "0.10.0"
+serde_json = "1.0.96"
 
 configuration = { path = "../libs/configuration" }
 wallet = { path = "../libs/wallet" }
