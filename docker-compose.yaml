@@ -9,7 +9,7 @@ services:
 
     restart: unless-stopped
     volumes:
-      - ./app_config.json:/app_config.json
+      - ./config.json:/config.json
       - /etc/localtime:/etc/localtime:ro
     logging:
       driver: "json-file"

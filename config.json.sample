@@ -1,0 +1,18 @@
+{
+  "wallet": "changeme",
+  "rpc_url": "changeme",
+  "discord_token": "changeme",
+  "discord_prefix": "$",
+  "update_config": false,
+  "update_name_sleep": 20,
+  "update_tx_sleep": 20,
+  "accounts": [
+    {
+      "mint": "changeme",
+      "account": "changeme",
+      "last_signature": "changeme",
+      "discord_channel_id": 0,
+      "symbol": "changeme"
+    }
+  ]
+}
