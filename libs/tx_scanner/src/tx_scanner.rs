@@ -31,9 +31,16 @@ impl TxScanner {
         if !mapped_txs.is_empty() {
             //find and update last signatures to config
             for (idx, account) in self.config.accounts.clone().into_iter().enumerate() {
-                self.config.accounts[idx].last_signature = mapped_txs.clone().into_iter().filter(|tx| {
+                match mapped_txs.clone().into_iter().filter(|tx| {
                     tx.source_account == account.account || tx.destination_account == account.account
-                }).max_by_key(|account| account.block).unwrap().signature
+                }).max_by_key(|account| account.block) {
+                    Some(data) => {
+                        self.config.accounts[idx].last_signature = data.signature
+                    }
+                    _ => {
+                        warn!("no check if nothing is found!")
+                    }
+                }
             }
             write_config("config.json".to_string(), self.config.clone());
         } else {

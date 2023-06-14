@@ -21,10 +21,10 @@ async fn balance(ctx: &Context, msg: &Message) -> CommandResult {
     let mut table_string = "".to_string();
     let mut table_row;
     for token in tokens_wallet.into_iter() {
-        table_row = format!("{} \t {:.2} \t {:.2}",
+        table_row = format!("{} \t\t {:.2} \t\t {:.2}",
                             config.clone().accounts.into_iter().find(|acc| acc.mint == token.mint).unwrap().symbol,
-                            token.amount.to_string(),
-                            (token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value).to_string()
+                            token.amount,
+                            (token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value)
         );
         table_string = format!("{}{}\n", table_string, table_row);
     }
