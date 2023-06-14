@@ -105,21 +105,10 @@ impl EventHandler for Handler {
     }
 }
 
-// async fn update_wallet(ctx: Arc<Context>) {
-//     let data_read = ctx.data.read().await;
-//     let wallet = data_read.get::<WalletStore>().unwrap();
-//     wallet.lock().await.fetch_solana_balance();
-//     wallet.lock().await.fetch_token_accounts_balances();
-//     wallet.lock().await.fetch_token_account_prices().await;
-//     wallet.lock().await.fetch_transactions();
-//     println!("wallet-updated!");
-// }
+
 
 async fn check_tx_queue(ctx: Arc<Context>) {
-    let data_read = ctx.data.read().await;
-
-    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
-    let config = arc_config.lock().await.clone();
+    let config = helper::read_config("config.json".to_string());
     let mut scanner = TxScanner::new(config.clone());
 
 
@@ -157,7 +146,10 @@ async fn check_tx_queue(ctx: Arc<Context>) {
 
 
 async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
-    let config = helper::read_config("config.json".to_string());
+    let data_read = ctx.data.read().await;
+    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
+    let config = arc_config.lock().await.clone();
+
 
     let wallet = Wallet::new(config);
     let tokens_wallet = wallet.get_token_amounts().await;
