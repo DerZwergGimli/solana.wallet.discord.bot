@@ -16,6 +16,8 @@ use serenity::prelude::*;
 use serenity::utils::Color;
 
 use configuration::configuration::Configuration;
+use tx_parser::tx_scanner::TxScanner;
+use wallet::solana::Wallet;
 
 use crate::commands::address::*;
 use crate::commands::config::*;
@@ -35,6 +37,19 @@ pub struct ConfigurationStore;
 
 impl TypeMapKey for ConfigurationStore {
     type Value = Arc<Mutex<Configuration>>;
+}
+
+
+pub struct WalletStore;
+
+impl TypeMapKey for WalletStore {
+    type Value = Arc<Mutex<Wallet>>;
+}
+
+pub struct ScannerStore;
+
+impl TypeMapKey for ScannerStore {
+    type Value = Arc<Mutex<TxScanner>>;
 }
 
 
@@ -135,8 +150,8 @@ async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
 }
 
 
-pub async fn init_bot(config: Configuration) {
-    let http = Http::new(&*config.clone().discord_token);
+pub async fn init_bot(config: Configuration, wallet: Wallet, scanner: TxScanner) {
+    let http = Http::new(&config.clone().discord_token);
     let (owners, _bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
             let mut owners = HashSet::new();
@@ -165,6 +180,8 @@ pub async fn init_bot(config: Configuration) {
     {
         let mut data = client.data.write().await;
         data.insert::<ConfigurationStore>(Arc::new(Mutex::new(config)));
+        data.insert::<WalletStore>(Arc::new(Mutex::new(wallet)));
+        data.insert::<ScannerStore>(Arc::new(Mutex::new(scanner)));
     }
 
 

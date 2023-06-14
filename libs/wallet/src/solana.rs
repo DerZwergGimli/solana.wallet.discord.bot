@@ -16,7 +16,7 @@ pub struct Wallet {
 impl Wallet {
     pub fn new(config: Configuration) -> Self {
         Wallet {
-            rpc_url: "https://solana-mainnet.rpc.extrnode.com".to_string(),
+            rpc_url: config.clone().rpc_url,
             config,
         }
     }

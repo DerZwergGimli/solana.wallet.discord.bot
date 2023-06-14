@@ -22,7 +22,7 @@ pub struct TxScanner {
 impl TxScanner {
     pub fn new(config: Configuration) -> Self {
         TxScanner {
-            rpc_url: "https://solana-mainnet.rpc.extrnode.com".to_string(),
+            rpc_url: config.clone().rpc_url,
             config,
         }
     }
