@@ -16,7 +16,6 @@ RUN openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -o
 
 
 # copy the build artifact from the build stage
-COPY --from=build /walletbot/bot/substreams.spkg .
 COPY --from=build /walletbot/bot/target/release/SolanaDiscordWalletTracker .
 
 # set the startup command to run your binary
