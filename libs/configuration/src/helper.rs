@@ -1,13 +1,13 @@
 use std::fs::File;
 use std::io::{Read, Write};
-use std::os::unix::raw::ino_t;
+
 
 use log::{error, info, warn};
 
 use crate::configuration::Configuration;
 
 pub fn read_config(path: String) -> Configuration {
-    let mut file = File::open("config.json").unwrap();
+    let mut file = File::open(path).unwrap();
     let mut data = String::new();
     file.read_to_string(&mut data).unwrap();
     serde_json::from_str(&data).unwrap()

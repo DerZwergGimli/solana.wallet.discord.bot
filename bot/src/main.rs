@@ -1,11 +1,6 @@
-use std::env;
-
 use dotenv::dotenv;
-use wallet::wallet::Wallet;
 
-use birdseyeapi::birdseyeapi;
 use configuration::helper;
-use tx_scanner::tx_scanner::TxScanner;
 
 use crate::bot::init_bot;
 

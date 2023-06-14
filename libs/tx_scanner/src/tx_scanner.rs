@@ -1,17 +1,14 @@
-use std::fs::File;
-use std::io::{Read, Write};
 use std::str::FromStr;
 
 use anyhow::{anyhow, Error};
-use log::{error, info, warn};
+use configuration::configuration::Configuration;
+use configuration::helper::write_config;
+use log::{info, warn};
 use solana_client::rpc_client::RpcClient;
 use solana_program::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
 use solana_transaction_status::{EncodedTransaction, UiMessage, UiTransactionEncoding};
 use spl_token::instruction::TokenInstruction;
-
-use configuration::configuration::Configuration;
-use configuration::helper::write_config;
 
 use crate::mapped_tx::MappedTX;
 
@@ -34,7 +31,7 @@ impl TxScanner {
             //find and update last signatures to config
             for (idx, account) in self.config.accounts.clone().into_iter().enumerate() {
                 self.config.accounts[idx].last_signature = mapped_txs.clone().into_iter().filter(|tx| {
-                    (tx.source_account == account.account || tx.destination_account == account.account)
+                    tx.source_account == account.account || tx.destination_account == account.account
                 }).max_by_key(|account| account.block).unwrap().signature
             }
             write_config("config.json".to_string(), self.config.clone());
@@ -56,7 +53,7 @@ impl TxScanner {
         let client = RpcClient::new(self.rpc_url.clone());
 
         let mut signatures_new: Vec<String> = vec![];
-        for (idx, account) in self.config.accounts.clone().into_iter().enumerate() {
+        for (_idx, account) in self.config.accounts.clone().into_iter().enumerate() {
             let signatures = client.get_signatures_for_address(
                 &Pubkey::from_str(account.account.as_str()).unwrap(),
             );

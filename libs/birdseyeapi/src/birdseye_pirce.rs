@@ -5,6 +5,6 @@ pub struct BirdseyePrice {
     pub mint: String,
     pub value: f64,
     pub update_unix_time: i64,
-    pub updateHumanTime: String,
-    pub priceChange24h: f64,
+    pub update_human_time: String,
+    pub price_change24h: f64,
 }

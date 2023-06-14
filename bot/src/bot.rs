@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use chrono::{DateTime, NaiveDateTime};
 use chrono::offset::Utc;
-use log::{error, info, warn};
+use log::{error, info};
 use serenity::async_trait;
 use serenity::framework::standard::macros::group;
 use serenity::framework::StandardFramework;
@@ -167,7 +167,7 @@ async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
 
     let mut balance_value = 0.0;
     tokens_wallet.into_iter().for_each(|token|
-        balance_value += (token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value)
+        balance_value += token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value
     );
 
     let name_text: String = format!("💰 {:.2} 💰 ", f64::trunc(balance_value * 100.0) / 100.0);

@@ -1,5 +1,3 @@
-use std::cmp::min;
-
 use log::info;
 use serde_json::Value;
 
@@ -25,8 +23,8 @@ pub async fn fetch_multi_price(mints: Vec<String>) -> Vec<BirdseyePrice> {
                 mint: m.clone(),
                 value: json["data"][m.clone()]["value"].as_f64().unwrap_or_default(),
                 update_unix_time: json["data"][m.clone()]["updateUnixTime"].as_i64().unwrap_or_default(),
-                updateHumanTime: json["data"][m.clone()]["updateHumanTime"].to_string(),
-                priceChange24h: json["data"][m]["priceChange24h"].as_f64().unwrap_or_default(),
+                update_human_time: json["data"][m.clone()]["updateHumanTime"].to_string(),
+                price_change24h: json["data"][m]["priceChange24h"].as_f64().unwrap_or_default(),
             }
         })
     });
