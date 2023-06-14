@@ -1,5 +1,5 @@
 pub mod ping;
 pub mod help;
-pub mod wallet;
+pub mod balance;
 pub mod config;
 pub mod address;

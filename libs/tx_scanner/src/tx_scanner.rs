@@ -1,14 +1,16 @@
 use std::str::FromStr;
 
 use anyhow::{anyhow, Error};
-use configuration::configuration::Configuration;
-use configuration::helper::write_config;
 use log::{info, warn};
+use serde::Serialize;
 use solana_client::rpc_client::RpcClient;
 use solana_program::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
-use solana_transaction_status::{EncodedTransaction, UiMessage, UiTransactionEncoding};
+use solana_transaction_status::{EncodedTransaction, EncodedTransactionWithStatusMeta, UiInnerInstructions, UiInstruction, UiMessage, UiRawMessage, UiTransactionEncoding, UiTransactionStatusMeta};
 use spl_token::instruction::TokenInstruction;
+
+use configuration::configuration::Configuration;
+use configuration::helper::write_config;
 
 use crate::mapped_tx::MappedTX;
 
@@ -120,8 +122,60 @@ impl TxScanner {
                         }
                     })
                 }
+
+                //Check also inner
+
+                //TODO: check for inner transaction
+                // match transaction {
+                //     Ok(t) => {
+                //         //self.check_inner_instructions_for_transfer(t.transaction, message, sign, t.slot, t.block_time, "");
+                //     }
+                // }
             }
         });
         mapped_tx
     }
+
+    // fn check_inner_instructions_for_transfer(&self, t: EncodedTransactionWithStatusMeta, message: UiRawMessage, sig: String, slot: u64, block_time: Option<i64>, mint: String) -> Vec<MappedTX> {
+    //     let mut mapped_tx: Vec<MappedTX> = vec![];
+    //
+    //     let inner_instructions: Option<Vec<solana_transaction_status::UiInnerInstructions>> = t.meta.unwrap().inner_instructions.into();
+    //     match inner_instructions {
+    //         Some(inner) => {
+    //             inner.into_iter().for_each(|ui_innnerInst| {
+    //                 ui_innnerInst.instructions.into_iter().for_each(|i| {
+    //                     match i {
+    //                         solana_transaction_status::UiInstruction::Compiled(data) => {
+    //                             //Check if inner instruction uses token progarmm
+    //                             if message.account_keys[data.program_id_index as usize] == "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" {
+    //                                 //check if inner instruction is of instrest for the current mint
+    //                                 if message.account_keys[data.accounts[1] as usize] == mint {
+    //                                     let token_instruction = TokenInstruction::unpack(&data);
+    //                                     if let Ok(TokenInstruction::TransferChecked { amount, decimals }) = token_instruction {
+    //                                         mapped_tx.push(MappedTX {
+    //                                             signature: sig.clone(),
+    //                                             block: slot,
+    //                                             timestamp: block_time.unwrap_or_default(),
+    //                                             signer: message.account_keys[data.accounts[3] as usize].clone(),
+    //                                             source_account: message.account_keys[data.accounts[0] as usize].clone(),
+    //                                             destination_account: message.account_keys[data.accounts[2] as usize].clone(),
+    //                                             mint_send: message.account_keys[data.accounts[1] as usize].clone(),
+    //                                             amount_send_parsed: (amount as f64 * f64::powi(10.0, -(decimals as i32))),
+    //                                             message: "Token Transfer (inner)".to_string(),
+    //                                         })
+    //                                     }
+    //                                 }
+    //                             }
+    //                         }
+    //                         _ => { warn!("If inner instruction not as expected its not checked!") }
+    //                     }
+    //                 })
+    //             })
+    //         }
+    //         _ => {
+    //             warn!("inner instruction none is not checked!")
+    //         }
+    //     }
+    //     mapped_tx
+    // }
 }

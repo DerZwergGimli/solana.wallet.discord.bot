@@ -1,6 +1,5 @@
 use std::fmt::format;
 
-use prettytable::{row, Table};
 use serenity::Error::Json;
 use serenity::framework::standard::CommandResult;
 use serenity::framework::standard::macros::command;

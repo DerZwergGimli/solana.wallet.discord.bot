@@ -21,10 +21,10 @@ use configuration::configuration::Configuration;
 use tx_scanner::tx_scanner::TxScanner;
 
 use crate::commands::address::*;
+use crate::commands::balance::*;
 use crate::commands::config::*;
 use crate::commands::help::*;
 use crate::commands::ping::*;
-use crate::commands::wallet::*;
 
 pub struct ConfigurationStore;
 
@@ -51,7 +51,7 @@ pub struct Handler {
 }
 
 #[group]
-#[commands(ping, help, wallet, config, address)]
+#[commands(ping, help, balance, config, address)]
 struct General;
 
 #[async_trait]

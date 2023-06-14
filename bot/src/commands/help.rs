@@ -3,6 +3,7 @@ use serenity::framework::standard::macros::command;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use serenity::utils::Color;
+
 use crate::bot::ConfigurationStore;
 
 //use crate::bot::Configuration;
@@ -19,9 +20,9 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
                 .description("This are all commands available for the wallet-tracker-bot.")
                 .color(Color::ORANGE)
                 .field(prefix.clone() + "help", "Shows this message", false)
-                .field(prefix.clone() + "store", "Prints stored-last signatures", false)
+                .field(prefix.clone() + "config", "Prints config store infos", false)
                 .field(prefix.clone() + "address", "Prints wallet-address helper", false)
-                .field(prefix.clone() + "wallet", "Prints wallet info", false)
+                .field(prefix.clone() + "balance", "Prints account balances", false)
                 .timestamp(Timestamp::now())
         })
     }).await?;
