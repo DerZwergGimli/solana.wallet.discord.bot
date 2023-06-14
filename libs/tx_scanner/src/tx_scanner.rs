@@ -45,10 +45,7 @@ impl TxScanner {
 
     pub async fn check(&self) -> Result<Vec<MappedTX>, Error> {
         let signatures_new = self.find_new_signatures().expect("Error finding signatures");
-
-        let mut mapped_tx: Vec<MappedTX> = vec![];
-        self.map_transactions(signatures_new, &mut mapped_tx);
-
+        let mapped_tx = self.map_transactions(signatures_new);
 
         info!("Checked for new transactions: {:?}", mapped_tx);
         Ok(mapped_tx)
@@ -66,10 +63,10 @@ impl TxScanner {
             match signatures {
                 Ok(signatures) => {
                     let index_stored_signature = signatures.clone().into_iter().position(|sign| {
-                        sign.signature.to_string() == account.clone().last_signature.to_string()
+                        sign.signature == account.clone().last_signature
                     }).expect("Unable to find any matching signature index");
 
-                    for (idx, signature) in signatures.clone().into_iter().into_iter().enumerate() {
+                    for (idx, signature) in signatures.clone().into_iter().enumerate() {
                         if index_stored_signature > idx {
                             signatures_new.push(signature.signature);
                         }
@@ -80,61 +77,54 @@ impl TxScanner {
                 }
             }
         }
-        Ok(signatures_new)
+        Ok(signatures_new.into_iter().rev().collect())
     }
 
-    fn map_transactions(&self, signatures_new: Vec<String>, mut mapped_tx: &mut Vec<MappedTX>) {
+    fn map_transactions(&self, signatures_new: Vec<String>) -> Vec<MappedTX> {
+        let mut mapped_tx: Vec<MappedTX> = vec![];
         let client = RpcClient::new(self.rpc_url.clone());
         signatures_new.into_iter().for_each(|sign| {
             let transaction = client.get_transaction(&Signature::from_str(sign.as_str()).unwrap(), UiTransactionEncoding::Json);
 
-            match transaction {
-                Ok(tx) => {
-                    let message = match tx.transaction.transaction.clone() {
-                        EncodedTransaction::LegacyBinary(_) => { None }
-                        EncodedTransaction::Binary(_, _) => { None }
-                        EncodedTransaction::Json(json) => {
-                            match json.message {
-                                UiMessage::Parsed(_) => { None }
-                                UiMessage::Raw(raw) => { Some(raw) }
+            if let Ok(tx) = transaction {
+                let message = match tx.transaction.transaction.clone() {
+                    EncodedTransaction::LegacyBinary(_) => { None }
+                    EncodedTransaction::Binary(_, _) => { None }
+                    EncodedTransaction::Json(json) => {
+                        match json.message {
+                            UiMessage::Parsed(_) => { None }
+                            UiMessage::Raw(raw) => { Some(raw) }
+                        }
+                    }
+                    EncodedTransaction::Accounts(_) => { None }
+                };
+
+
+                if let Some(msg) = message {
+                    msg.instructions.into_iter().for_each(|i| {
+                        if msg.account_keys[i.program_id_index as usize] == "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" {
+                            let data = bs58::decode(i.data).into_vec().unwrap();
+                            let token_instruction = TokenInstruction::unpack(&data);
+                            if let Ok(TokenInstruction::TransferChecked { amount, decimals }) = token_instruction {
+                                mapped_tx.push({
+                                    MappedTX {
+                                        signature: sign.to_string(),
+                                        block: tx.slot,
+                                        timestamp: tx.block_time.unwrap_or_default(),
+                                        source_account: msg.account_keys[i.accounts[0] as usize].clone(),
+                                        destination_account: msg.account_keys[i.accounts[2] as usize].clone(),
+                                        mint_send: msg.account_keys[i.accounts[1] as usize].clone(),
+                                        signer: msg.account_keys[i.accounts[3] as usize].clone(),
+                                        amount_send_parsed: (amount as f64 * f64::powi(10.0, -(decimals as i32))),
+                                        message: "Token Transfer".to_string(),
+                                    }
+                                });
                             }
                         }
-                        EncodedTransaction::Accounts(_) => { None }
-                    };
-
-
-                    match message {
-                        Some(msg) => {
-                            msg.instructions.into_iter().for_each(|i| {
-                                if msg.account_keys[i.program_id_index as usize] == "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA" {
-                                    let data = bs58::decode(i.data).into_vec().unwrap();
-                                    let token_instruction = TokenInstruction::unpack(&data);
-                                    match token_instruction {
-                                        Ok(TokenInstruction::TransferChecked { amount, decimals }) => {
-                                            mapped_tx.push({
-                                                MappedTX {
-                                                    signature: sign.to_string(),
-                                                    block: tx.slot,
-                                                    timestamp: tx.block_time.unwrap_or_default(),
-                                                    source_account: msg.account_keys[i.accounts[0] as usize].clone(),
-                                                    destination_account: msg.account_keys[i.accounts[2] as usize].clone(),
-                                                    mint_send: msg.account_keys[i.accounts[1] as usize].clone(),
-                                                    signer: msg.account_keys[i.accounts[3] as usize].clone(),
-                                                    amount_send_parsed: (amount as f64 * f64::powi(10.0, -(decimals as i32))),
-                                                    message: "Token Transfer".to_string(),
-                                                }
-                                            });
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                            })
-                        }
-                        None => {}
-                    }
+                    })
                 }
-                Err(_) => {}
             }
         });
+        mapped_tx
     }
 }

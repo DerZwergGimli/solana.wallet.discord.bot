@@ -27,13 +27,6 @@ use crate::commands::ping::*;
 use crate::commands::store::*;
 use crate::commands::wallet::*;
 
-//
-// pub struct WalletStore;
-//
-// impl TypeMapKey for WalletStore {
-//     type Value = Arc<Mutex<Wallet>>;
-// }
-
 pub struct ConfigurationStore;
 
 impl TypeMapKey for ConfigurationStore {
@@ -92,14 +85,16 @@ impl EventHandler for Handler {
                     let config = arc_config.lock().await.clone();
 
 
-
                     check_tx_queue(Arc::clone(&ctx2)).await;
                     tokio::time::sleep(Duration::from_secs(config.update_tx_sleep)).await;
                 }
             });
 
-
-
+            let default_panic = std::panic::take_hook();
+            std::panic::set_hook(Box::new(move |info| {
+                default_panic(info);
+                std::process::exit(1);
+            }));
 
             self.is_loop_running.swap(true, Ordering::Relaxed);
         }
@@ -124,9 +119,39 @@ async fn check_tx_queue(ctx: Arc<Context>) {
     let data_read = ctx.data.read().await;
     let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
     let config = arc_config.lock().await.clone();
+    let mut scanner = TxScanner::new(config.clone());
 
 
+    let new_transaction = scanner.check().await.expect("Error while checking for new transactions");
 
+
+    for tx in new_transaction.clone().into_iter() {
+        let direction_emote = if tx.destination_account == config.clone().accounts.into_iter().find(|acc| acc.mint == tx.mint_send).unwrap().account { ":inbox_tray:" } else { ":outbox_tray:" };
+        let info_message = format!("{:} {:.2} {:}",
+                                   direction_emote,
+                                   tx.amount_send_parsed,
+                                   config.clone().accounts.into_iter().find(|account| account.mint == tx.mint_send).unwrap().symbol
+        );
+
+        let channel_id = config.accounts.clone().into_iter().find(|account| {
+            account.mint == tx.mint_send
+        }).unwrap().discord_channel_id;
+
+        let title_message = format!(":information_source: {:} :information_source:", tx.message);
+
+        let _ = ChannelId(channel_id).send_message(&ctx.http, |m| {
+            m.embed(|e| {
+                e.title(title_message)
+                    .color(Color::ORANGE)
+                    .field(info_message, "", false)
+                    .field("Timestamp", format!("{}", DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(tx.timestamp, 1000000).unwrap(), Utc)), false)
+                    .field("Signature", tx.signature.clone(), false)
+                    .field("Link", "https://solscan.io/tx/".to_owned() + &*tx.signature, false)
+            })
+        }).await;
+    }
+
+    scanner.update_config(new_transaction);
 }
 
 
