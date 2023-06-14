@@ -18,10 +18,12 @@ async fn main() {
     dotenv().ok();
     env_logger::init();
 
-
+    //Init Dependencies
     let config = helper::read_config("config.json".to_string());
-
     let wallet = Wallet::new(config.clone());
+
+
+
     let account_details = wallet.get_token_amounts().await;
     println!("{:?}", account_details);
 

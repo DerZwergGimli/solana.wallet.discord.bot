@@ -21,10 +21,10 @@ pub struct TxScanner {
 
 impl TxScanner {
     pub fn new(config: Configuration) -> Self {
-        return TxScanner {
+        TxScanner {
             rpc_url: "https://solana-mainnet.rpc.extrnode.com".to_string(),
-            config: config,
-        };
+            config,
+        }
     }
 
 
