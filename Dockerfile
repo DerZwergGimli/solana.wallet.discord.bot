@@ -1,4 +1,4 @@
-FROM rust:1.65.0 as build
+FROM rust:1.70.0 as build
 
 # create a new empty shell project
 WORKDIR /walletbot
