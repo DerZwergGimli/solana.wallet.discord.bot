@@ -67,15 +67,22 @@ impl TxScanner {
             );
             match signatures {
                 Ok(signatures) => {
-                    let index_stored_signature = signatures.clone().into_iter().position(|sign| {
-                        sign.signature == account.clone().last_signature
-                    }).expect("Unable to find any matching signature index");
+                    //println!("{:?}", signatures);
 
-                    for (idx, signature) in signatures.clone().into_iter().enumerate() {
-                        if index_stored_signature > idx {
-                            signatures_new.push(signature.signature);
+                    match signatures.clone().into_iter().position(|sign| {
+                        sign.signature == account.clone().last_signature
+                    }){
+                        Some( index_stored_signature) => {
+                            for (idx, signature) in signatures.clone().into_iter().enumerate() {
+                                if index_stored_signature > idx {
+                                    signatures_new.push(signature.signature);
+                                }
+                            }
                         }
+                        _ => continue
                     }
+
+
                 }
                 Err(_) => {
                     return Err(Err(anyhow!("Error fetching signatures")));
