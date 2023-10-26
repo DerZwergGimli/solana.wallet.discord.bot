@@ -18,3 +18,5 @@ configuration = { path = "../libs/configuration" }
 wallet = { path = "../libs/wallet" }
 tx_scanner = { path = "../libs/tx_scanner" }
 birdseyeapi = { path = "../libs/birdseyeapi" }
+
+solana_wallet = { path = "../libs/solana_wallet" }
