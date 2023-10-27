@@ -2,24 +2,23 @@ use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+use chrono::{DateTime, NaiveDateTime, Utc};
 
-use chrono::{DateTime, NaiveDateTime};
-use chrono::offset::Utc;
-use log::{error, info};
+
+use log::{info};
 use serenity::async_trait;
 use serenity::framework::standard::macros::group;
 use serenity::framework::StandardFramework;
 use serenity::http::Http;
-use serenity::model::gateway::{Activity, Ready};
+use serenity::model::gateway::{Ready};
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::prelude::*;
 use serenity::utils::Color;
-use wallet::wallet::Wallet;
 
-use birdseyeapi::birdseyeapi::fetch_multi_price;
-use configuration::configuration::Configuration;
+use configuration::configuration::{ConfigAccount, Configuration};
 use configuration::helper;
-use tx_scanner::tx_scanner::TxScanner;
+
+use solana_wallet::wallet::*;
 
 use crate::commands::address::*;
 use crate::commands::balance::*;
@@ -35,16 +34,6 @@ impl TypeMapKey for ConfigurationStore {
 
 
 pub struct WalletStore;
-
-impl TypeMapKey for WalletStore {
-    type Value = Arc<Mutex<Wallet>>;
-}
-
-pub struct ScannerStore;
-
-impl TypeMapKey for ScannerStore {
-    type Value = Arc<Mutex<TxScanner>>;
-}
 
 
 pub struct Handler {
@@ -106,42 +95,46 @@ impl EventHandler for Handler {
 }
 
 
-
 async fn check_tx_queue(ctx: Arc<Context>) {
     let config = helper::read_config("config.json".to_string());
-    let mut scanner = TxScanner::new(config.clone());
+    let typing = ChannelId(config.discord_channel_id_default).start_typing(&ctx.http).unwrap();
 
+    let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    wallet.load_config();
+    let transactions: Vec<WalletTransaction> = wallet.get_and_update_signatures().await;
 
-    let new_transaction = scanner.check().await.expect("Error while checking for new transactions");
-
-
-    for tx in new_transaction.clone().into_iter() {
-        let direction_emote = if tx.destination_account == config.clone().accounts.into_iter().find(|acc| acc.mint == tx.mint_send).unwrap().account { ":inbox_tray:" } else { ":outbox_tray:" };
+    for transaction in transactions {
+        let direction_emote = if transaction.is_incoming { ":inbox_tray:" } else { ":outbox_tray:" };
         let info_message = format!("{:} {:.2} {:}",
                                    direction_emote,
-                                   tx.amount_send_parsed,
-                                   config.clone().accounts.into_iter().find(|account| account.mint == tx.mint_send).unwrap().symbol
+                                   transaction.amount as f64 * 10.0f64.powf(-(transaction.decimals as f64)),
+                                   transaction.info.name
         );
+        let channel_id =
+            match config.accounts.clone().into_iter().find(|account| {
+                account.mint == transaction.mint
+            }) {
+                None => { config.discord_channel_id_default }
+                Some(data) => { data.discord_channel_id }
+            };
 
-        let channel_id = config.accounts.clone().into_iter().find(|account| {
-            account.mint == tx.mint_send
-        }).unwrap().discord_channel_id;
-
-        let title_message = format!(":information_source: {:} :information_source:", tx.message);
+        let title_message = format!(":information_source: \t {:}", transaction.instruction);
 
         let _ = ChannelId(channel_id).send_message(&ctx.http, |m| {
             m.embed(|e| {
                 e.title(title_message)
                     .color(Color::ORANGE)
                     .field(info_message, "", false)
-                    .field("Timestamp", format!("{}", DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(tx.timestamp, 1000000).unwrap(), Utc)), false)
-                    .field("Signature", tx.signature.clone(), false)
-                    .field("Link", "https://solscan.io/tx/".to_owned() + &*tx.signature, false)
+                    .field("Timestamp", format!("{}", DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(transaction.timestamp, 1000000).unwrap(), Utc)), false)
+                    .field("Signature", transaction.signature.clone(), false)
+                    .field("Link", format!("https://solscan.io/tx/{}", transaction.signature.clone()), false)
+                    .thumbnail(transaction.info.image_url.clone())
             })
         }).await;
     }
 
-    scanner.update_config(new_transaction);
+    wallet.save_config();
+    typing.stop();
 }
 
 
@@ -150,27 +143,27 @@ async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
     let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
     let config = arc_config.lock().await.clone();
 
-
-    let wallet = Wallet::new(config);
-    let tokens_wallet = wallet.get_token_amounts().await;
-    let tokens_prices = fetch_multi_price(tokens_wallet.clone().into_iter().map(|token| token.mint).collect()).await;
-
-    let mut balance_value = 0.0;
-    tokens_wallet.into_iter().for_each(|token|
-        balance_value += token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value
-    );
-
-    let name_text: String = format!("💰 {:.2} 💰 ", f64::trunc(balance_value * 100.0) / 100.0);
-    for _guild in _guilds.iter() {
-        match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
-            Ok(_) => { info!("Changed Bot nickname!") }
-            Err(_) => { error!("Unable to change bot nickname!") }
-        };
-    }
-    let current_time = Utc::now();
-    let formatted_time = current_time.to_rfc2822();
-
-    ctx.set_activity(Activity::playing(&formatted_time)).await;
+    //
+    // let wallet = Wallet::new();
+    // let tokens_wallet = wallet.get_token_amounts().await;
+    // let tokens_prices = fetch_multi_price(tokens_wallet.clone().into_iter().map(|token| token.mint).collect()).await;
+    //
+    // let mut balance_value = 0.0;
+    // tokens_wallet.into_iter().for_each(|token|
+    //     balance_value += token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value
+    // );
+    //
+    // let name_text: String = format!("💰 {:.2} 💰 ", f64::trunc(balance_value * 100.0) / 100.0);
+    // for _guild in _guilds.iter() {
+    //     match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
+    //         Ok(_) => { info!("Changed Bot nickname!") }
+    //         Err(_) => { error!("Unable to change bot nickname!") }
+    //     };
+    // }
+    // let current_time = Utc::now();
+    // let formatted_time = current_time.to_rfc2822();
+    //
+    // ctx.set_activity(Activity::playing(&formatted_time)).await;
 }
 
 

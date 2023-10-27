@@ -14,10 +14,10 @@ async fn config(ctx: &Context, msg: &Message) -> CommandResult {
     let config = arc_config.lock().await.clone();
 
 
-    for account in config.accounts.into_iter() {
-        let message = format!("{}, {}, {}", account.symbol, account.account, account.last_signature);
-        msg.channel_id.say(&ctx.http, message).await?;
-    }
+    // for account in config.accounts.into_iter() {
+    //     let message = format!("{}, {}, {}", account.symbol, account.account, account.last_signature);
+    //     msg.channel_id.say(&ctx.http, message).await?;
+    // }
 
 
     Ok(())
