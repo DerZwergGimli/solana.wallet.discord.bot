@@ -17,6 +17,9 @@ async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
 
     let mut page = 0;
     let mut table = vec![];
+
+    let mut got_triggered = false;
+
     for (wallet_token_index, wallet_token) in wallet.wallet_tokens.clone().into_iter().enumerate() {
         let name = match wallet_token.info.name.len() {
             0 => { "unknown".to_string() }
@@ -36,9 +39,17 @@ async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
             }).await?;
             table = vec![];
             page += 1;
+            got_triggered = true
         }
     }
-
-
+    if !got_triggered {
+        let _ = msg.channel_id.send_message(&ctx.http, |m| {
+            m.embed(|e| {
+                e.title(format!("Wallet-Balances [{}]", page))
+                    .color(Color::ORANGE)
+                    .fields(table.clone())
+            })
+        }).await?;
+    }
     Ok(())
 }
