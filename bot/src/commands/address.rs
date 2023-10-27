@@ -17,6 +17,7 @@ async fn address(ctx: &Context, msg: &Message) -> CommandResult {
         m.embed(|e| {
             e.title("Wallet-Address")
                 .color(Color::ORANGE)
+                .field("Domain", config.name.clone(), false)
                 .field("Address", config.wallet.clone(), false)
                 .field("Solscan", format!("https://solscan.io/account/{:}", config.wallet.clone()), false)
                 .field("SolanaBeach", format!("https://solanabeach.io/address/{:}", config.wallet.clone()), false)

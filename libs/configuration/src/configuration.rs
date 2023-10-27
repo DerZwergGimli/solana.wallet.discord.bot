@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Configuration {
+    pub name: String,
     pub wallet: String,
     pub rpc_url: String,
     pub check_unknown_token_accounts: bool,

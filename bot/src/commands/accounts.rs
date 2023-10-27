@@ -30,22 +30,22 @@ async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
 
         if ((wallet_token_index % 21 == 0) || (wallet_token_index == wallet.wallet_tokens.len())) && wallet_token_index != 0
         {
-            send_embed_paged(&ctx, msg, page, &mut table).await;
+            send_embed_paged(&ctx,  config.name.clone(),msg, page, &mut table).await;
             table = vec![];
             page += 1;
             got_triggered = true
         }
     }
     if !got_triggered {
-        send_embed_paged(&ctx, msg, page, &mut table).await;
+        send_embed_paged(&ctx,  config.name.clone(),msg, page, &mut table).await;
     }
     Ok(())
 }
 
-async fn send_embed_paged(ctx: &&Context, msg: &Message, mut page: i32, mut table: &mut Vec<(String, String, bool)>)  {
+async fn send_embed_paged(ctx: &&Context,name: String, msg: &Message, mut page: i32, mut table: &mut Vec<(String, String, bool)>)  {
     let _ = msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
-            e.title(format!("Wallet-Balances [{}]", page))
+            e.title(format!("{} Accounts [{}]",name, page))
                 .color(Color::ORANGE)
                 .fields(table.clone())
         })
