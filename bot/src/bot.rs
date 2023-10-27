@@ -168,10 +168,10 @@ async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
             Err(_) => { error!("Unable to change bot nickname!") }
         };
     }
-    let current_time = Utc::now();
-    let formatted_time = current_time.to_rfc2822();
+    // let current_time = Utc::now();
+    // let formatted_time = current_time.to_rfc2822();
 
-    ctx.set_activity(Activity::playing(&formatted_time)).await;
+    ctx.set_activity(Activity::playing(config.domain.clone())).await;
 }
 
 

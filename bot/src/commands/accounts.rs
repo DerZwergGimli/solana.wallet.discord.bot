@@ -20,9 +20,10 @@ async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
 
     let mut got_triggered = false;
 
-    for (wallet_token_index, wallet_token) in wallet.wallet_tokens.clone().into_iter().enumerate() {
+
+    for (wallet_token_index, wallet_token) in wallet.wallet_tokens.clone().into_iter().filter(|token| token.amount != 0).enumerate() {
         let name = match wallet_token.info.name.len() {
-            0 => { "unknown".to_string() }
+            0 => { "???".to_string() }
             _ => { wallet_token.info.name }
         };
         table.push((name, (format!("{:.2}", (wallet_token.amount as f32) * 10f32.powf(-(wallet_token.decimals as f32))).to_string()), true));

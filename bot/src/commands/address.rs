@@ -19,10 +19,12 @@ async fn address(ctx: &Context, msg: &Message) -> CommandResult {
                 .color(Color::ORANGE)
                 .field("Domain", config.domain.clone(), false)
                 .field("Address", config.wallet.clone(), false)
-                .field("Solscan", format!("https://solscan.io/account/{:}", config.wallet.clone()), false)
-                .field("SolanaBeach", format!("https://solanabeach.io/address/{:}", config.wallet.clone()), false)
-                .field("SolanaFM", format!("https://solana.fm/address/{:}", config.wallet.clone()), false)
-                .field("STEP.Finance", format!("https://app.step.finance/en/dashboard?watching={:}", config.wallet), false)
+                .field("Solscan", format!("[link](https://solscan.io/account/{:})", config.wallet.clone()), true)
+                .field("SolanaFM", format!("[link](https://solana.fm/address/{:})", config.wallet.clone()), true)
+                .field("STEP.Finance", format!("[link](https://app.step.finance/en/dashboard?watching={:})", config.wallet.clone()), true)
+                // .field("SolanaBeach", format!("https://solanabeach.io/address/{:}", config.wallet.clone()), false)
+                // .field("SolanaFM", format!("https://solana.fm/address/{:}", config.wallet.clone()), false)
+                // .field("STEP.Finance", format!("https://app.step.finance/en/dashboard?watching={:}", config.wallet), false)
         })
     }).await;
 
