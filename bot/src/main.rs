@@ -17,7 +17,7 @@ async fn main() {
     let config = helper::read_config("config.json".to_string());
 
     println!("--- Load/Build TokenList! ---");
-    let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
     wallet.load_config();
     if wallet.wallet_tokens.is_empty() {
         // Update

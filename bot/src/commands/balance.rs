@@ -11,7 +11,7 @@ use solana_wallet::wallet::Wallet;
 async fn balance(ctx: &Context, msg: &Message) -> CommandResult {
     let config = helper::read_config("config.json".to_string());
 
-    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
     wallet.load_config();
 
 

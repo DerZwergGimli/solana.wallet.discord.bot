@@ -98,7 +98,7 @@ async fn check_tx_queue(ctx: Arc<Context>) {
     let config = helper::read_config("config.json".to_string());
     let typing = ChannelId(config.discord_channel_id_default).start_typing(&ctx.http).unwrap();
 
-    let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
     wallet.load_config();
     let transactions: Vec<WalletTransaction> = wallet.get_and_update_signatures().await;
 
@@ -142,7 +142,7 @@ async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
     let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
     let config = arc_config.lock().await.clone();
 
-    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
     wallet.load_config();
 
     let mut mint_list = vec![];

@@ -62,14 +62,16 @@ pub struct Wallet {
     client: solana_client::nonblocking::rpc_client::RpcClient,
     pub wallet_address: Pubkey,
     pub wallet_tokens: Vec<WalletToken>,
+    check_unnamed_tokens: bool,
 }
 
 impl Wallet {
-    pub fn new(url: String, wallet: String) -> Self {
+    pub fn new(url: String, wallet: String, check_unnamed_tokens: bool) -> Self {
         Self {
             client: RpcClient::new_with_timeout(url.clone(), Duration::from_secs(3)),
             wallet_address: Pubkey::from_str(wallet.as_str()).unwrap(),
             wallet_tokens: vec![],
+            check_unnamed_tokens,
         }
     }
 
@@ -88,12 +90,15 @@ impl Wallet {
     }
     pub async fn update_accounts(&mut self) {
         let filter = TokenAccountsFilter::ProgramId(Pubkey::from_str(TOKEN_PROGRAM).unwrap());
-        self.wallet_tokens = vec![];
-
 
         match self.client.get_token_accounts_by_owner(&self.wallet_address, filter).await {
             Ok(accounts) => {
                 for account in accounts {
+                    // Continue if exists
+                    if self.wallet_tokens.iter().any(|token| token.account == account.pubkey) {
+                        continue;
+                    }
+
                     self.wallet_tokens.push(WalletToken {
                         last_signature: "".to_string(),
                         info: WalletTokenInfo {
@@ -164,6 +169,10 @@ impl Wallet {
         let mut transactions = vec![];
 
         for (token_index, token) in self.wallet_tokens.clone().into_iter().enumerate() {
+            if !self.check_unnamed_tokens && token.info.name.is_empty() {
+                continue;
+            }
+
             let config = if !token.last_signature.is_empty() {
                 GetConfirmedSignaturesForAddress2Config {
                     before: None,
