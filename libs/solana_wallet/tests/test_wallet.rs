@@ -7,7 +7,9 @@ mod test_wallet {
     async fn test_token_accounts() {
         let mut wallet = Wallet::new(
             "https://solana-mainnet.g.alchemy.com/v2/AaKsvOkJp4LwaW08RHWRZo43ZWtYPiOD".to_string(),
-            "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string());
+            "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string(),
+            false);
+
 
         // let mut wallet = Wallet::new(
         //     "https://solana-mainnet.rpc.extrnode.com".to_string(),
@@ -44,11 +46,8 @@ mod test_wallet {
     async fn test_no_save() {
         let mut wallet = Wallet::new(
             "https://solana-mainnet.g.alchemy.com/v2/AaKsvOkJp4LwaW08RHWRZo43ZWtYPiOD".to_string(),
-            "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string());
-
-        // let mut wallet = Wallet::new(
-        //     "https://solana-mainnet.rpc.extrnode.com".to_string(),
-        //     "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string());
+            "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string(), false)
+            ;
 
 
         // SETUP
@@ -63,8 +62,6 @@ mod test_wallet {
         for transfer in transfers {
             println!("{:?}", transfer)
         }
-
-
 
 
         let value = 10;

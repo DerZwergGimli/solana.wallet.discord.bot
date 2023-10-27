@@ -22,7 +22,7 @@ use crate::token_lists::token_list_staratlas::{TokenListStarAtlas};
 
 
 const TOKEN_PROGRAM: &str = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-const CONFIG_FILE: &str = "wallet_config.json";
+const CONFIG_FILE: &str = "./wallet_config.json";
 
 #[derive(Tabled, Debug, Clone, Serialize, Deserialize)]
 pub struct WalletTokenInfo {
@@ -79,9 +79,12 @@ impl Wallet {
     pub fn load_config(&mut self) {
         match File::open(CONFIG_FILE) {
             Ok(mut file) => {
-                let mut data = String::new();
-                file.read_to_string(&mut data).unwrap();
-                self.wallet_tokens = serde_json::from_str(&data).unwrap();
+                match serde_json::from_reader(file) {
+                    Ok(data) => {
+                        self.wallet_tokens = data
+                    }
+                    _ => { warn!("No config could be parsed!") }
+                };
                 info!("Wallet config has been loaded from store!")
             }
             _ => { warn!("No config could be loaded!") }
