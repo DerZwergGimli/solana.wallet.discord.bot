@@ -1,4 +1,4 @@
-use serenity::framework::standard::CommandResult;
+use serenity::framework::standard::{CommandResult};
 use serenity::framework::standard::macros::command;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -30,26 +30,24 @@ async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
 
         if ((wallet_token_index % 21 == 0) || (wallet_token_index == wallet.wallet_tokens.len())) && wallet_token_index != 0
         {
-            let _ = msg.channel_id.send_message(&ctx.http, |m| {
-                m.embed(|e| {
-                    e.title(format!("Wallet-Balances [{}]", page))
-                        .color(Color::ORANGE)
-                        .fields(table.clone())
-                })
-            }).await?;
+            send_embed_paged(&ctx, msg, page, &mut table).await;
             table = vec![];
             page += 1;
             got_triggered = true
         }
     }
     if !got_triggered {
-        let _ = msg.channel_id.send_message(&ctx.http, |m| {
-            m.embed(|e| {
-                e.title(format!("Wallet-Balances [{}]", page))
-                    .color(Color::ORANGE)
-                    .fields(table.clone())
-            })
-        }).await?;
+        send_embed_paged(&ctx, msg, page, &mut table).await;
     }
     Ok(())
+}
+
+async fn send_embed_paged(ctx: &&Context, msg: &Message, mut page: i32, mut table: &mut Vec<(String, String, bool)>)  {
+    let _ = msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e.title(format!("Wallet-Balances [{}]", page))
+                .color(Color::ORANGE)
+                .fields(table.clone())
+        })
+    }).await.unwrap();
 }
