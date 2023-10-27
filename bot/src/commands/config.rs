@@ -1,24 +1,21 @@
+use configuration::helper;
 use serenity::framework::standard::CommandResult;
 use serenity::framework::standard::macros::command;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-
-use crate::bot::ConfigurationStore;
-
-//use crate::bot::Configuration;
+use solana_wallet::wallet::Wallet;
 
 #[command]
 async fn config(ctx: &Context, msg: &Message) -> CommandResult {
-    let data_read = ctx.data.read().await;
-    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected ConfigStore in TypeMap");
-    let config = arc_config.lock().await.clone();
+    let config = helper::read_config("config.json".to_string());
+    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    wallet.load_config();
 
 
-    // for account in config.accounts.into_iter() {
-    //     let message = format!("{}, {}, {}", account.symbol, account.account, account.last_signature);
-    //     msg.channel_id.say(&ctx.http, message).await?;
-    // }
-
+    for token in wallet.wallet_tokens {
+        let message = format!("{} - {}", token.account, token.last_signature);
+        msg.channel_id.say(&ctx.http, message).await?;
+    }
 
     Ok(())
 }

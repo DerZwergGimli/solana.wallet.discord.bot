@@ -25,8 +25,8 @@ async fn balance(ctx: &Context, msg: &Message) -> CommandResult {
         table.push((name, (format!("{:.2}", (wallet_token.amount as f32) * 10f32.powf(-(wallet_token.decimals as f32))).to_string()), true));
 
 
-        if ((wallet_token_index % 21 == 0) || (wallet_token_index == wallet.wallet_tokens.len()) && wallet_token_index != 0
-        ) {
+        if ((wallet_token_index % 21 == 0) || (wallet_token_index == wallet.wallet_tokens.len())) && wallet_token_index != 0
+        {
             let _ = msg.channel_id.send_message(&ctx.http, |m| {
                 m.embed(|e| {
                     e.title(format!("Wallet-Balances [{}]", page))
