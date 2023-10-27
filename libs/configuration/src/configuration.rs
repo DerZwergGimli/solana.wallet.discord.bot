@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 pub struct Configuration {
     pub wallet: String,
     pub rpc_url: String,
-    pub update_config: bool,
     pub check_unknown_token_accounts: bool,
     pub discord_token: String,
     pub birdseye_token: String,

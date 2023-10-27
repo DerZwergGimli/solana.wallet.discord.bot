@@ -13,22 +13,18 @@ pub fn read_config(path: String) -> Configuration {
     serde_json::from_str(&data).unwrap()
 }
 
-pub fn write_config(path: String, config: Configuration) {
-    if config.update_config {
-        let mut file = File::create(path.clone()).unwrap();
-        match write!(file, "{}", serde_json::to_string_pretty(&config).unwrap()) {
-            Ok(_) => {
-                info!("Updated config file: {}", path)
-            }
-            Err(_) => {
-                error!("Unable to write file: {}", path)
-            }
-        }
-        info!("mapped_tx has been written to file")
-    } else {
-        warn!("config_update is disabled")
-    }
-}
+// pub fn write_config(path: String, config: Configuration) {
+//     let mut file = File::create(path.clone()).unwrap();
+//     match write!(file, "{}", serde_json::to_string_pretty(&config).unwrap()) {
+//         Ok(_) => {
+//             info!("Updated config file: {}", path)
+//         }
+//         Err(_) => {
+//             error!("Unable to write file: {}", path)
+//         }
+//     }
+//     info!("mapped_tx has been written to file")
+// }
 
 
 
