@@ -30,14 +30,14 @@ async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
 
         if ((wallet_token_index % 21 == 0) || (wallet_token_index == wallet.wallet_tokens.len())) && wallet_token_index != 0
         {
-            send_embed_paged(&ctx,  config.name.clone(),msg, page, &mut table).await;
+            send_embed_paged(&ctx, config.domain.clone(), msg, page, &mut table).await;
             table = vec![];
             page += 1;
             got_triggered = true
         }
     }
     if !got_triggered {
-        send_embed_paged(&ctx,  config.name.clone(),msg, page, &mut table).await;
+        send_embed_paged(&ctx, config.domain.clone(), msg, page, &mut table).await;
     }
     Ok(())
 }

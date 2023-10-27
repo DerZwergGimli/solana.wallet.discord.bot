@@ -1,4 +1,5 @@
 {
+  "domain": "domain",
   "wallet": "changeme",
   "rpc_url": "changeme",
   "discord_token": "changeme",
