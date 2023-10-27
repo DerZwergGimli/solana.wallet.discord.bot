@@ -100,9 +100,11 @@ async fn check_tx_queue(ctx: Arc<Context>) {
 
     let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
     wallet.load_config();
+
+
     let transactions: Vec<WalletTransaction> = wallet.get_and_update_signatures().await;
 
-    for transaction in transactions {
+    for transaction in transactions.clone() {
         let direction_emote = if transaction.is_incoming { ":inbox_tray:" } else { ":outbox_tray:" };
         let info_message = format!("{:} {:.2} {:}",
                                    direction_emote,
@@ -132,7 +134,12 @@ async fn check_tx_queue(ctx: Arc<Context>) {
         }).await;
     }
 
-    wallet.save_config();
+    if !transactions.is_empty() {
+        wallet.update_accounts().await;
+        wallet.update_accounts_balances().await;
+        wallet.update_token_names().await;
+        wallet.save_config();
+    }
     typing.stop();
 }
 
