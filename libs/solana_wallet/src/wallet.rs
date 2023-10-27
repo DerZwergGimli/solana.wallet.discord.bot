@@ -32,12 +32,12 @@ pub struct WalletTokenInfo {
 
 #[derive(Tabled, Debug, Clone, Serialize, Deserialize)]
 pub struct WalletToken {
-    last_signature: String,
-    info: WalletTokenInfo,
-    account: String,
-    mint: String,
-    decimals: u8,
-    amount: u64,
+    pub last_signature: String,
+    pub info: WalletTokenInfo,
+    pub account: String,
+    pub mint: String,
+    pub decimals: u8,
+    pub amount: u64,
 }
 
 

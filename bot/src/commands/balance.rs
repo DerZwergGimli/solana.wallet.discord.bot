@@ -2,34 +2,43 @@ use serenity::framework::standard::CommandResult;
 use serenity::framework::standard::macros::command;
 use serenity::model::prelude::*;
 use serenity::prelude::*;
+use configuration::helper;
+use serenity::utils::Color;
+use solana_wallet::wallet::Wallet;
 
-
-use birdseyeapi::birdseyeapi::fetch_multi_price;
-
-use crate::bot::ConfigurationStore;
 
 #[command]
 async fn balance(ctx: &Context, msg: &Message) -> CommandResult {
-    let data_read = ctx.data.read().await;
-    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected ConfigStore in TypeMap");
-    let config = arc_config.lock().await.clone();
+    let config = helper::read_config("config.json".to_string());
 
-    //let wallet = Wallet::new(config.clone());
-    //let tokens_wallet = wallet.get_token_amounts().await;
-    // let tokens_prices = fetch_multi_price(tokens_wallet.clone().into_iter().map(|token| token.mint).collect()).await;
-    //
-    // let mut table_string = "".to_string();
-    // let mut table_row;
-    // for token in tokens_wallet.into_iter() {
-    //     table_row = format!("{} \t\t {:.2} \t\t {:.2}",
-    //                         config.clone().accounts.into_iter().find(|acc| acc.mint == token.mint).unwrap().symbol,
-    //                         token.amount,
-    //                         (token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value)
-    //     );
-    //     table_string = format!("{}{}\n", table_string, table_row);
-    // }
+    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    wallet.load_config();
 
-    //msg.channel_id.say(&ctx.http, table_string).await?;
+
+    let mut page = 0;
+    let mut table = vec![];
+    for (wallet_token_index, wallet_token) in wallet.wallet_tokens.clone().into_iter().enumerate() {
+        let name = match wallet_token.info.name.len() {
+            0 => { "unknown".to_string() }
+            _ => { wallet_token.info.name }
+        };
+        table.push((name, (format!("{:.2}", (wallet_token.amount as f32) * 10f32.powf(-(wallet_token.decimals as f32))).to_string()), true));
+
+
+        if ((wallet_token_index % 21 == 0) || (wallet_token_index == wallet.wallet_tokens.len()) && wallet_token_index != 0
+        ) {
+            let _ = msg.channel_id.send_message(&ctx.http, |m| {
+                m.embed(|e| {
+                    e.title(format!("Wallet-Balances [{}]", page))
+                        .color(Color::ORANGE)
+                        .fields(table.clone())
+                })
+            }).await?;
+            table = vec![];
+            page += 1;
+        }
+    }
+
 
     Ok(())
 }

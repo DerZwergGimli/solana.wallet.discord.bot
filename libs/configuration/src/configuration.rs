@@ -6,6 +6,7 @@ pub struct Configuration {
     pub rpc_url: String,
     pub update_config: bool,
     pub discord_token: String,
+    pub birdseye_token: String,
     pub discord_prefix: String,
     pub update_name_sleep: u64,
     pub update_tx_sleep: u64,

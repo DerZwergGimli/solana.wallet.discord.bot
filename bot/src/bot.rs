@@ -1,11 +1,13 @@
+use std::cmp::min;
 use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+use birdseyeapi::birdseyeapi::fetch_multi_price;
 use chrono::{DateTime, NaiveDateTime, Utc};
 
 
-use log::{info};
+use log::{error, info};
 use serenity::async_trait;
 use serenity::framework::standard::macros::group;
 use serenity::framework::StandardFramework;
@@ -17,6 +19,7 @@ use serenity::utils::Color;
 
 use configuration::configuration::{ConfigAccount, Configuration};
 use configuration::helper;
+use serenity::model::prelude::Activity;
 
 use solana_wallet::wallet::*;
 
@@ -143,27 +146,29 @@ async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
     let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
     let config = arc_config.lock().await.clone();
 
-    //
-    // let wallet = Wallet::new();
-    // let tokens_wallet = wallet.get_token_amounts().await;
-    // let tokens_prices = fetch_multi_price(tokens_wallet.clone().into_iter().map(|token| token.mint).collect()).await;
-    //
-    // let mut balance_value = 0.0;
-    // tokens_wallet.into_iter().for_each(|token|
-    //     balance_value += token.amount * tokens_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value
-    // );
-    //
-    // let name_text: String = format!("💰 {:.2} 💰 ", f64::trunc(balance_value * 100.0) / 100.0);
-    // for _guild in _guilds.iter() {
-    //     match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
-    //         Ok(_) => { info!("Changed Bot nickname!") }
-    //         Err(_) => { error!("Unable to change bot nickname!") }
-    //     };
-    // }
-    // let current_time = Utc::now();
-    // let formatted_time = current_time.to_rfc2822();
-    //
-    // ctx.set_activity(Activity::playing(&formatted_time)).await;
+    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
+    wallet.load_config();
+
+    let mut mint_list = vec![];
+    wallet.wallet_tokens.clone().into_iter().for_each(|t| mint_list.push(t.mint));
+    let token_prices = fetch_multi_price(mint_list, config.birdseye_token).await;
+
+    let mut balance_value = 0.0;
+    wallet.wallet_tokens.clone().into_iter().for_each(|token|
+        balance_value += ((token.amount as f64) * 10f64.powf(-(token.decimals as f64))) * token_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value
+    );
+
+    let name_text: String = format!("💰 ~{:.2} 💰 ", balance_value);
+    for _guild in _guilds.iter() {
+        match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
+            Ok(_) => { info!("Changed Bot nickname!") }
+            Err(_) => { error!("Unable to change bot nickname!") }
+        };
+    }
+    let current_time = Utc::now();
+    let formatted_time = current_time.to_rfc2822();
+
+    ctx.set_activity(Activity::playing(&formatted_time)).await;
 }
 
 

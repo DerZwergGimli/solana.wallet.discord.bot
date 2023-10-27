@@ -8,6 +8,8 @@ use crate::bot::init_bot;
 mod bot;
 mod commands;
 
+
+
 #[tokio::main]
 async fn main() {
     println!("--- Booted ---");
