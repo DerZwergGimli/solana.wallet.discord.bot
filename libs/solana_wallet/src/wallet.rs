@@ -163,8 +163,8 @@ impl Wallet {
     pub async fn get_and_update_signatures(&mut self) -> Vec<WalletTransaction> {
         let mut transactions = vec![];
 
-        for (token_index, mut token) in self.wallet_tokens.clone().into_iter().enumerate() {
-            let config = if token.last_signature.len() > 0 {
+        for (token_index, token) in self.wallet_tokens.clone().into_iter().enumerate() {
+            let config = if !token.last_signature.is_empty() {
                 GetConfirmedSignaturesForAddress2Config {
                     before: None,
                     until: Some(Signature::from_str(token.last_signature.clone().as_str()).unwrap()),
@@ -342,7 +342,7 @@ impl Wallet {
         match self.wallet_tokens.len() {
             0 => { println!("Token-Accounts is empty!") }
             _ => {
-                println!("{}", Table::new(self.wallet_tokens.clone()).to_string());
+                println!("{}", Table::new(self.wallet_tokens.clone()));
             }
         }
     }
