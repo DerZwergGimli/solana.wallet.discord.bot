@@ -128,7 +128,8 @@ async fn check_tx_queue(ctx: Arc<Context>) {
                     .field(info_message, "", false)
                     .field("Timestamp", format!("{}", DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(transaction.timestamp, 1000000).unwrap(), Utc)), false)
                     .field("Signature", transaction.signature.clone(), false)
-                    .field("Link", format!("https://solscan.io/tx/{}", transaction.signature.clone()), false)
+                    .field("Solscan", format!("[link](https://solscan.io/tx/{:})", transaction.signature.clone()), true)
+                    .field("SolanaFM", format!("[link](https://solana.fm/tx/{:})", transaction.signature.clone()), true)
                     .thumbnail(transaction.info.image_url.clone())
             })
         }).await;
