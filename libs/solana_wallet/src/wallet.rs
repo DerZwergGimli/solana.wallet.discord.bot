@@ -1,8 +1,9 @@
 use std::fmt;
-use std::fs::File;
 use std::str::FromStr;
 use std::time::Duration;
 use log::{error, info, warn};
+use std::fs::File;
+use std::io::Read;
 use serde::{Deserialize, Serialize};
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_client::rpc_client::GetConfirmedSignaturesForAddress2Config;
@@ -77,8 +78,10 @@ impl Wallet {
 
     pub fn load_config(&mut self) {
         match File::open(CONFIG_FILE) {
-            Ok(file) => {
-                self.wallet_tokens = serde_json::from_reader(file).unwrap();
+            Ok(mut file) => {
+                let mut data = String::new();
+                file.read_to_string(&mut data).unwrap();
+                self.wallet_tokens = serde_json::from_str(&data).unwrap();
                 info!("Wallet config has been loaded from store!")
             }
             _ => { warn!("No config could be loaded!") }
