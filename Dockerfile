@@ -9,7 +9,7 @@ COPY . .
 RUN cd bot && cargo build --release
 
 # our final base
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 RUN apt-get update && apt-get install -y libssl-dev openssl ca-certificates
 RUN openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem -subj "/C=GE/ST=London/L=London/O=Global Security/OU=IT Department/CN=example.com"
