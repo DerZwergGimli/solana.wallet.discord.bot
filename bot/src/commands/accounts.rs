@@ -8,7 +8,7 @@ use solana_wallet::wallet::Wallet;
 
 
 #[command]
-async fn balance(ctx: &Context, msg: &Message) -> CommandResult {
+async fn accounts(ctx: &Context, msg: &Message) -> CommandResult {
     let config = helper::read_config("config.json".to_string());
 
     let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);

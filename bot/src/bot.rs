@@ -23,7 +23,7 @@ use serenity::model::prelude::Activity;
 use solana_wallet::wallet::*;
 
 use crate::commands::address::*;
-use crate::commands::balance::*;
+use crate::commands::accounts::*;
 use crate::commands::config::*;
 use crate::commands::help::*;
 use crate::commands::ping::*;
@@ -40,7 +40,7 @@ pub struct Handler {
 }
 
 #[group]
-#[commands(ping, help, balance, config, address)]
+#[commands(ping, help, accounts, config, address)]
 struct General;
 
 #[async_trait]

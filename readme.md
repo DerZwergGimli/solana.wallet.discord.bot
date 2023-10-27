@@ -9,7 +9,7 @@ A Simple Solana-Wallet Token-Tracker
 - `$help` Shows this message
 - `$config` Prints config store infos
 - `$address` Prints wallet-address helper
-- `$balance` Prints account balances
+- `$accounts` Prints account balances
 
 # How to run this bot:
 
