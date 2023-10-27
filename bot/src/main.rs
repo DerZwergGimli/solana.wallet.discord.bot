@@ -1,14 +1,10 @@
 use dotenv::dotenv;
-
 use configuration::helper;
 use solana_wallet::wallet::*;
-
 use crate::bot::init_bot;
 
 mod bot;
 mod commands;
-
-
 
 #[tokio::main]
 async fn main() {
@@ -23,7 +19,7 @@ async fn main() {
     println!("--- Load/Build TokenList! ---");
     let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet);
     wallet.load_config();
-    if wallet.wallet_tokens.len() == 0 {
+    if wallet.wallet_tokens.is_empty() {
         // Update
         wallet.update_accounts().await;
         wallet.update_accounts_balances().await;

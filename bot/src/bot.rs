@@ -1,4 +1,3 @@
-use std::cmp::min;
 use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -17,7 +16,7 @@ use serenity::model::id::{ChannelId, GuildId};
 use serenity::prelude::*;
 use serenity::utils::Color;
 
-use configuration::configuration::{ConfigAccount, Configuration};
+use configuration::configuration::{Configuration};
 use configuration::helper;
 use serenity::model::prelude::Activity;
 
@@ -34,9 +33,6 @@ pub struct ConfigurationStore;
 impl TypeMapKey for ConfigurationStore {
     type Value = Arc<Mutex<Configuration>>;
 }
-
-
-pub struct WalletStore;
 
 
 pub struct Handler {
