@@ -1,6 +1,6 @@
 # Solana Wallet Discord Bot
 
-A Simple Solana-Wallet Token-Tracker
+A Simple Solana-Wallet/Accounts-Tracker
 
 ![view of DC bot](images/bot_view_dc2.png)
 
