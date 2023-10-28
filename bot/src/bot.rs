@@ -106,6 +106,8 @@ async fn check_tx_queue(ctx: Arc<Context>) {
 
     for transaction in transactions.clone() {
         let direction_emote = if transaction.is_incoming { ":inbox_tray:" } else { ":outbox_tray:" };
+
+
         let info_message = format!("{:} {:.2} {:}",
                                    direction_emote,
                                    transaction.amount as f64 * 10.0f64.powf(-(transaction.decimals as f64)),
@@ -119,7 +121,7 @@ async fn check_tx_queue(ctx: Arc<Context>) {
                 Some(data) => { data.discord_channel_id }
             };
 
-        let title_message = format!(":information_source: \t {:}", transaction.instruction);
+        let title_message = format!(":information_source: {:}", transaction.instruction);
 
         let _ = ChannelId(channel_id).send_message(&ctx.http, |m| {
             m.embed(|e| {
