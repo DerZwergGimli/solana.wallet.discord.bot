@@ -24,3 +24,9 @@ A Simple Solana-Wallet/Accounts-Tracker
 
 ![view of DC bot](images/message.png)
 
+# Discord-Bot/Token
+
+When you create the discord token on `https://discord.com/developers/applications`
+make sure to enable `MESSAGE CONTENT INTENT`' under:
+
+``BOT -> Build-A-Bot -> Privileged Gateway Intents -> MESSAGE CONTENT INTENT = ENABLE``
