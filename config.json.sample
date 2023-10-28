@@ -1,19 +1,18 @@
 {
-  "domain": "domain",
-  "wallet": "changeme",
-  "rpc_url": "changeme",
-  "discord_token": "changeme",
+  "domain": "wallet-domain",
+  "wallet": "wallet-address",
+  "rpc_url": "rpc-url",
+  "update_name_sleep": 60000,
+  "update_tx_sleep": 60000,
+  "discord_token": "discord-token",
+  "birdseye_token": "birdseye-token",
   "discord_prefix": "$",
-  "update_config": false,
-  "update_name_sleep": 20,
-  "update_tx_sleep": 20,
+  "check_unknown_token_accounts": false,
+  "discord_channel_id_default": 0000,
   "accounts": [
     {
-      "mint": "changeme",
-      "account": "changeme",
-      "last_signature": "changeme",
-      "discord_channel_id": 0,
-      "symbol": "changeme"
+      "mint": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "discord_channel_id": 0000
     }
   ]
 }
