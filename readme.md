@@ -2,7 +2,7 @@
 
 A Simple Solana-Wallet Token-Tracker
 
-![view of DC bot](images/bot_view_dc.png)
+![view of DC bot](images/bot_view_dc2.png)
 
 ## Commands
 
@@ -17,3 +17,10 @@ A Simple Solana-Wallet Token-Tracker
 2. Copy the `config.json.sample` to `config.json`
 3. Edit the `config.json` to a watch a single wallet.
 4. Start the bot using `docker-compose up -d`
+
+## Views
+
+![view of DC bot](images/bot_view_dc.png)
+
+![view of DC bot](images/message.png)
+
