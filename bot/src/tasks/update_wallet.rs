@@ -47,6 +47,7 @@ pub async fn update_wallet(ctx: Arc<Context>) {
                     .field("Signature", transaction.signature.clone(), false)
                     .field("Solscan", format!("[link](https://solscan.io/tx/{:})", transaction.signature.clone()), true)
                     .field("SolanaFM", format!("[link](https://solana.fm/tx/{:})", transaction.signature.clone()), true)
+                    .field("Confirmation", "React with :accepted: to this message!", false)
                     .thumbnail(transaction.info.image_url.clone())
             })
         }).await;
