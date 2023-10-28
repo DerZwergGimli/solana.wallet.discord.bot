@@ -1,20 +1,17 @@
 #[cfg(test)]
 mod test_wallet {
+    use dotenv::dotenv;
     use solana_wallet::wallet::Wallet;
 
 
     #[tokio::test]
     async fn test_token_accounts() {
+        dotenv().ok();
+
         let mut wallet = Wallet::new(
-            "https://solana-mainnet.g.alchemy.com/v2/AaKsvOkJp4LwaW08RHWRZo43ZWtYPiOD".to_string(),
-            "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string(),
+            std::env::var("RPC_URL").expect("RPC_URL not set in .env"),
+            std::env::var("WALLET").expect("WALLET not set in .env"),
             false);
-
-
-        // let mut wallet = Wallet::new(
-        //     "https://solana-mainnet.rpc.extrnode.com".to_string(),
-        //     "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string());
-
 
         // SETUP
         wallet.load_config();
@@ -44,10 +41,12 @@ mod test_wallet {
 
     #[tokio::test]
     async fn test_no_save() {
+        dotenv().ok();
+
         let mut wallet = Wallet::new(
-            "https://solana-mainnet.g.alchemy.com/v2/AaKsvOkJp4LwaW08RHWRZo43ZWtYPiOD".to_string(),
-            "756pfnvP3HHRx1BPwBPQwe1xBMfMWef5N9oN61Ews7np".to_string(), false)
-            ;
+            std::env::var("RPC_URL").expect("RPC_URL not set in .env"),
+            std::env::var("WALLET").expect("WALLET not set in .env"),
+            false);
 
 
         // SETUP
