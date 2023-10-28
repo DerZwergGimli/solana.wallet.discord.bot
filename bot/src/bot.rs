@@ -74,7 +74,7 @@ impl EventHandler for Handler {
 
 
                     check_tx_queue(Arc::clone(&ctx2)).await;
-                    tokio::time::sleep(Duration::from_secs(config.update_tx_sleep)).await;
+                    tokio::time::sleep(Duration::from_millis(config.update_tx_sleep)).await;
                 }
             });
 
