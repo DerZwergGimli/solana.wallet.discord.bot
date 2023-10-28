@@ -8,7 +8,7 @@ log = "0.4.17"
 dotenv = "0.15.0"
 env_logger = "0.10.0"
 anyhow = "1.0.69"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serenity = { version = "0.11.7", features = ["client", "gateway", "rustls_backend", "framework", "standard_framework", "model", "cache"] }
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde_json = "1.0.96"

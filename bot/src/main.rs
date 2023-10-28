@@ -5,6 +5,7 @@ use crate::bot::init_bot;
 
 mod bot;
 mod commands;
+mod tasks;
 
 #[tokio::main]
 async fn main() {

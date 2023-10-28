@@ -27,6 +27,8 @@ use crate::commands::accounts::*;
 use crate::commands::config::*;
 use crate::commands::help::*;
 use crate::commands::ping::*;
+use crate::tasks::update_nickname::update_nickname;
+use crate::tasks::update_wallet::update_wallet;
 
 pub struct ConfigurationStore;
 
@@ -73,7 +75,7 @@ impl EventHandler for Handler {
                     let config = arc_config.lock().await.clone();
 
 
-                    check_tx_queue(Arc::clone(&ctx2)).await;
+                    update_wallet(Arc::clone(&ctx2)).await;
                     tokio::time::sleep(Duration::from_millis(config.update_tx_sleep)).await;
                 }
             });
@@ -94,88 +96,6 @@ impl EventHandler for Handler {
 }
 
 
-async fn check_tx_queue(ctx: Arc<Context>) {
-    let config = helper::read_config("config.json".to_string());
-    let typing = ChannelId(config.discord_channel_id_default).start_typing(&ctx.http).unwrap();
-
-    let mut wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
-    wallet.load_config();
-
-
-    let transactions: Vec<WalletTransaction> = wallet.get_and_update_signatures().await;
-
-    for transaction in transactions.clone() {
-        let direction_emote = if transaction.is_incoming { ":inbox_tray:" } else { ":outbox_tray:" };
-
-
-        let info_message = format!("{:} {:.2} {:}",
-                                   direction_emote,
-                                   transaction.amount as f64 * 10.0f64.powf(-(transaction.decimals as f64)),
-                                   transaction.info.name
-        );
-        let channel_id =
-            match config.accounts.clone().into_iter().find(|account| {
-                account.mint == transaction.mint
-            }) {
-                None => { config.discord_channel_id_default }
-                Some(data) => { data.discord_channel_id }
-            };
-
-        let title_message = format!(":information_source: {:}", transaction.instruction);
-
-        let _ = ChannelId(channel_id).send_message(&ctx.http, |m| {
-            m.embed(|e| {
-                e.title(title_message)
-                    .color(Color::ORANGE)
-                    .field(info_message, "", false)
-                    .field("Timestamp", format!("{}", DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp_opt(transaction.timestamp, 1000000).unwrap(), Utc)), false)
-                    .field("Signature", transaction.signature.clone(), false)
-                    .field("Solscan", format!("[link](https://solscan.io/tx/{:})", transaction.signature.clone()), true)
-                    .field("SolanaFM", format!("[link](https://solana.fm/tx/{:})", transaction.signature.clone()), true)
-                    .thumbnail(transaction.info.image_url.clone())
-            })
-        }).await;
-    }
-
-    if !transactions.is_empty() {
-        wallet.update_accounts().await;
-        wallet.update_accounts_balances().await;
-        wallet.update_token_names().await;
-        wallet.save_config();
-    }
-    typing.stop();
-}
-
-
-async fn update_nickname(ctx: Arc<Context>, _guilds: Vec<GuildId>) {
-    let data_read = ctx.data.read().await;
-    let arc_config = data_read.get::<ConfigurationStore>().expect("Expected WalletStore in TypeMap");
-    let config = arc_config.lock().await.clone();
-
-    let mut wallet: Wallet = Wallet::new(config.clone().rpc_url, config.clone().wallet, config.check_unknown_token_accounts);
-    wallet.load_config();
-
-    let mut mint_list = vec![];
-    wallet.wallet_tokens.clone().into_iter().for_each(|t| mint_list.push(t.mint));
-    let token_prices = fetch_multi_price(mint_list, config.birdseye_token).await;
-
-    let mut balance_value = 0.0;
-    wallet.wallet_tokens.clone().into_iter().for_each(|token|
-        balance_value += ((token.amount as f64) * 10f64.powf(-(token.decimals as f64))) * token_prices.clone().into_iter().find(|price| price.mint == token.mint).unwrap().value
-    );
-
-    let name_text: String = format!("💰 ~{:.2} 💰 ", balance_value);
-    for _guild in _guilds.iter() {
-        match _guild.edit_nickname(&ctx.http, Some(name_text.as_str())).await {
-            Ok(_) => { info!("Changed Bot nickname!") }
-            Err(_) => { error!("Unable to change bot nickname!") }
-        };
-    }
-    // let current_time = Utc::now();
-    // let formatted_time = current_time.to_rfc2822();
-
-    ctx.set_activity(Activity::playing(config.domain.clone())).await;
-}
 
 
 pub async fn init_bot(config: Configuration) {
