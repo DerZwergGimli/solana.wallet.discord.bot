@@ -245,8 +245,8 @@ impl Wallet {
                                                 decimals: token.decimals,
                                                 amount,
                                                 from: mesage.account_keys[instruction.accounts[0] as usize].clone(),
-                                                to: mesage.account_keys[instruction.accounts[2] as usize].clone(),
-                                                is_incoming: mesage.account_keys[instruction.accounts[2] as usize].clone() == self.wallet_address.to_string(),
+                                                to: mesage.account_keys[instruction.accounts[1] as usize].clone(),
+                                                is_incoming: mesage.account_keys[instruction.accounts[1] as usize].clone() == token.account,
 
                                             })
                                         }
@@ -286,7 +286,7 @@ impl Wallet {
                                                 amount,
                                                 from: mesage.account_keys[instruction.accounts[0] as usize].clone(),
                                                 to: mesage.account_keys[instruction.accounts[2] as usize].clone(),
-                                                is_incoming: self.wallet_tokens.clone().into_iter().any(|t| t.account == mesage.account_keys[instruction.accounts[2] as usize].clone()),
+                                                is_incoming: mesage.account_keys[instruction.accounts[2] as usize].clone() == token.account,
                                             })
                                         }
                                         TokenInstruction::ApproveChecked { .. } => {
