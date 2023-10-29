@@ -154,9 +154,12 @@ impl Wallet {
                         }
                         Some(token_sa) => {
                             WalletTokenInfo {
-                                name: token_sa.name,
-                                symbol: token_sa.symbol,
-                                image_url: token_sa.media.thumbnail_url.unwrap_or(token_sa.image),
+                                name: token_sa.clone().name,
+                                symbol: token_sa.clone().symbol,
+                                image_url: match token_sa.clone().media.thumbnail_url.unwrap_or(token_sa.clone().image).is_empty() {
+                                    true => { token_sa.image }
+                                    false => { token_sa.media.thumbnail_url.unwrap_or(token_sa.image) }
+                                },
                             }
                         }
                     }
