@@ -193,7 +193,7 @@ impl Wallet {
                 GetConfirmedSignaturesForAddress2Config {
                     before: None,
                     until: None,
-                    limit: Some(2),
+                    limit: Some(1),
                     commitment: Some(CommitmentConfig::confirmed()),
                 }
             };
