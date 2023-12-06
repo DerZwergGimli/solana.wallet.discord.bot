@@ -66,6 +66,8 @@ pub struct Attributes {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum Edition {
+    #[serde(rename = "alternate-cover")]
+    AlternateCover,
     #[serde(rename = "magic-eden")]
     MagicEden,
     #[serde(rename = "star-atlas")]

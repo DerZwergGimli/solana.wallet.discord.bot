@@ -18,8 +18,6 @@ pub async fn update_wallet(ctx: Arc<Context>) {
 
     for transaction in transactions.clone() {
         let direction_emote = if transaction.is_incoming { ":inbox_tray:" } else { ":outbox_tray:" };
-
-
         let info_message = format!("{:} {:.2} {:}",
                                    direction_emote,
                                    transaction.amount as f64 * 10.0f64.powf(-(transaction.decimals as f64)),
@@ -34,8 +32,6 @@ pub async fn update_wallet(ctx: Arc<Context>) {
             };
 
         let title_message = format!(":information_source: {:}", transaction.instruction);
-
-
         let timestamp = DateTime::<Utc>::from_naive_utc_and_offset(NaiveDateTime::from_timestamp_opt(transaction.timestamp, 1000000).unwrap(), Utc);
 
         let _ = ChannelId(channel_id).send_message(&ctx.http, |m| {

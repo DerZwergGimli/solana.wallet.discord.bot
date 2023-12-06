@@ -75,7 +75,6 @@ impl Wallet {
             check_unnamed_tokens,
         }
     }
-
     pub fn load_config(&mut self) {
         match File::open(CONFIG_FILE) {
             Ok(mut file) => {
@@ -339,7 +338,6 @@ impl Wallet {
         }
         transactions
     }
-
     fn transaction_push_default(name: &str, transactions: &mut Vec<WalletTransaction>, token: WalletToken, signature: RpcConfirmedTransactionStatusWithSignature) {
         transactions.push(WalletTransaction {
             info: token.clone().info,
@@ -355,7 +353,6 @@ impl Wallet {
             is_incoming: false,
         })
     }
-
     pub fn print_accounts(&self) {
         match self.wallet_tokens.len() {
             0 => { println!("Token-Accounts is empty!") }
