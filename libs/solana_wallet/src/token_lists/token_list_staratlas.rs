@@ -244,7 +244,7 @@ pub enum Type {
 pub struct TradeSettings {
     pub expire_time: Option<ETime>,
     pub sale_time: Option<ETime>,
-    pub vwap: f64,
+    pub vwap: Option<f64>,
     pub msrp: Option<Msrp>,
     pub sale_type: Option<String>,
     pub limited: Option<String>,
