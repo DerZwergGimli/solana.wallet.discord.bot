@@ -3,3 +3,4 @@
 /bot/config.json
 /bot/wallet_config.json
 /libs/solana_wallet/.env
+/libs/solana_wallet/wallet_config.json
