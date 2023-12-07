@@ -2,30 +2,29 @@ use serde::{Serialize, Deserialize};
 
 pub type TokenListStarAtlas = Vec<TokenListStarAtlasElement>;
 
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TokenListStarAtlasElement {
     #[serde(rename = "_id")]
-    pub id: String,
-    pub deactivated: bool,
-    pub name: String,
-    pub description: String,
-    pub image: String,
-    pub media: Media,
-    pub attributes: Attributes,
-    pub symbol: String,
-    pub markets: Vec<Market>,
+    pub id: Option<String>,
+    pub deactivated: Option<bool>,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub image: Option<String>,
+    pub media: Option<Media>,
+    pub attributes: Option<Attributes>,
+    pub symbol: Option<String>,
+    pub markets: Option<Vec<Market>>,
     pub total_supply: Option<i64>,
-    pub mint: String,
+    pub mint: Option<String>,
     pub network: Option<Network>,
-    pub trade_settings: TradeSettings,
-    pub airdrops: Vec<Airdrop>,
-    pub primary_sales: Vec<PrimarySale>,
+    pub trade_settings: Option<TradeSettings>,
+    pub airdrops: Option<Vec<Airdrop>>,
+    pub primary_sales: Option<Vec<PrimarySale>>,
     pub updated_at: Option<String>,
     pub collection: Option<Collection>,
     pub slots: Option<Slots>,
-    #[serde(rename = "id")]
-    pub token_list_star_atlas_id: String,
     pub created_at: Option<String>,
     #[serde(rename = "__v")]
     pub v: Option<i64>,
@@ -35,21 +34,21 @@ pub struct TokenListStarAtlasElement {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Airdrop {
     #[serde(rename = "_id")]
-    pub id: String,
-    pub supply: i64,
+    pub id: Option<String>,
+    pub supply: Option<i64>,
     #[serde(rename = "id")]
-    pub airdrop_id: i64,
+    pub airdrop_id: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Attributes {
-    pub item_type: ItemType,
+    pub item_type: Option<ItemType>,
     pub tier: Option<i64>,
-    pub class: String,
+    pub class: Option<String>,
     pub category: Option<String>,
     pub score: Option<i64>,
-    pub rarity: Rarity,
+    pub rarity: Option<Rarity>,
     pub musician: Option<String>,
     pub spec: Option<String>,
     pub make: Option<String>,
@@ -106,8 +105,8 @@ pub enum SeriesName {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Collection {
-    pub name: String,
-    pub family: Family,
+    pub name: Option<String>,
+    pub family: Option<Family>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -122,13 +121,13 @@ pub struct Market {
     #[serde(rename = "_id")]
     pub id: Option<String>,
     #[serde(rename = "id")]
-    pub market_id: String,
-    pub quote_pair: QuotePair,
+    pub market_id: Option<String>,
+    pub quote_pair: Option<ExclusiveCurrency>,
     pub serum_program_id: Option<SerumProgramId>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum QuotePair {
+pub enum ExclusiveCurrency {
     #[serde(rename = "ATLAS")]
     Atlas,
     #[serde(rename = "SOL")]
@@ -168,9 +167,7 @@ pub enum Network {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PrimarySale {
-    pub list_timestamp: i64,
-    #[serde(rename = "id")]
-    pub primary_sale_id: Option<String>,
+    pub list_timestamp: Option<i64>,
     #[serde(rename = "_id")]
     pub id: Option<String>,
     pub supply: Option<i64>,
@@ -180,7 +177,7 @@ pub struct PrimarySale {
     pub mint_timestamp: Option<i64>,
     pub order_id: Option<serde_json::Value>,
     pub expire_timestamp: Option<i64>,
-    pub target_pair: Option<QuotePair>,
+    pub target_pair: Option<ExclusiveCurrency>,
     pub quote_price: Option<f64>,
 }
 
@@ -197,9 +194,9 @@ pub struct Slots {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ComponentSlotElement {
     #[serde(rename = "type")]
-    pub slot_type: String,
+    pub slot_type: Option<String>,
     pub size: Option<Crew>,
-    pub quantity: i64,
+    pub quantity: Option<i64>,
     pub crew: Option<Crew>,
 }
 
@@ -230,7 +227,7 @@ pub enum Crew {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InteriorSlotElement {
     #[serde(rename = "type")]
-    pub slot_type: Type,
+    pub slot_type: Option<Type>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -244,10 +241,12 @@ pub enum Type {
 pub struct TradeSettings {
     pub expire_time: Option<ETime>,
     pub sale_time: Option<ETime>,
-    pub vwap: Option<f64>,
     pub msrp: Option<Msrp>,
     pub sale_type: Option<String>,
     pub limited: Option<String>,
+    pub vwap: Option<f64>,
+    pub exclusive_currency: Option<ExclusiveCurrency>,
+    pub secondary_market_occlusion: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -260,6 +259,6 @@ pub enum ETime {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Msrp {
-    pub value: f64,
-    pub currency_symbol: QuotePair,
+    pub value: Option<f64>,
+    pub currency_symbol: Option<ExclusiveCurrency>,
 }

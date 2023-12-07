@@ -142,7 +142,7 @@ impl Wallet {
         for (wallet_token_index, wallet_token) in self.wallet_tokens.clone().into_iter().enumerate() {
             self.wallet_tokens[wallet_token_index].info = match token_list_solflare.tokens.clone().into_iter().find(|t| t.address == wallet_token.mint) {
                 None => {
-                    match token_list_staratlas.clone().into_iter().find(|t| t.mint == wallet_token.mint) {
+                    match token_list_staratlas.clone().into_iter().find(|t| t.mint == Some(wallet_token.clone().mint)) {
                         None => {
                             WalletTokenInfo {
                                 name: "".to_string(),
@@ -153,11 +153,11 @@ impl Wallet {
                         }
                         Some(token_sa) => {
                             WalletTokenInfo {
-                                name: token_sa.clone().name,
-                                symbol: token_sa.clone().symbol,
-                                image_url: match token_sa.clone().media.thumbnail_url.unwrap_or(token_sa.clone().image).is_empty() {
-                                    true => { token_sa.image }
-                                    false => { token_sa.media.thumbnail_url.unwrap_or(token_sa.image) }
+                                name: token_sa.clone().name.unwrap(),
+                                symbol: token_sa.clone().symbol.unwrap(),
+                                image_url: match token_sa.clone().media.unwrap().thumbnail_url.unwrap_or(token_sa.clone().image.unwrap()).is_empty() {
+                                    true => { token_sa.image.unwrap() }
+                                    false => { token_sa.media.unwrap().thumbnail_url.unwrap_or(token_sa.image.unwrap()) }
                                 },
                             }
                         }
